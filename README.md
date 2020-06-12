@@ -2,6 +2,7 @@
 Hyperparameter search wrapper that uses multiple GPUs.
 
 Advantages:
+
     - Automates hyperparameter search
     - Automatically picks free GPUs
     - Works for any train.py file that allows hyperparameter specification using
@@ -9,6 +10,7 @@ Advantages:
     - Both grid search and random search available
 
 Assumes:
+
     - train.py can have GPU specified using --gpu_num `GPU_ID` file
     - train.py keeps track of metrics in separate files e.g. Tensorboard logs
 
