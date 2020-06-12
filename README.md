@@ -19,7 +19,7 @@ All three GPUs will start training the first models they were assigned. Once a G
 
 Useful when models are of similar size and run for the same number of epochs.
 
-Example output when running `hparam_search.py`: 
+Example output when running `hp_search.py`: 
 
 ```
 OPTIMIZING OVER:
