@@ -1,5 +1,9 @@
 # gpu-hyperparameter-search
-Hyperparameter search wrapper that uses multiple GPUs.
+Imagine the scenario: you inherited someone else's code and you have to adapt it for a different task. Instead of manually trying out different sets of hyperparameters, you let the computer do the work for you.
+
+This simple wrapper works with any code and is very useful in the beginning and exploratory stages of a project. This project assumes that hyperparameters for the python script that trains and evaluates the model can be passed in as command line arguments. You can specify the hyperparameters that you want to experiment by defining it inside the `hp_search.py` model.
+
+Then you just hit run, and it will take care of everything else. 
 
 Advantages:
 - Automates hyperparameter search
