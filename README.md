@@ -5,11 +5,10 @@ This wrapper allows you to train different models on multiple GPUs in parallel. 
 
 ## Advantages
 
-- Compatible with all machine learning libraries. 
-- No need to add anything to your code
+- Compatible with all machine learning libraries (or actually any Python script that you wanna run on a GPU)
+- No need to add anything to your code. Works for any train.py file that allows hyperparameter specification using command line arguments (see demo)
+- Automatically picks unused GPUs with option to leave some free 
 - Automates hyperparameter search
-- Automatically picks free GPUs with option to leave some free 
-- Works for any train.py file that allows hyperparameter specification using command line arguments (see demo)
 - Both grid search and random search available
 
 ## Disadvantages
