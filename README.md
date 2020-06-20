@@ -1,4 +1,4 @@
-# gpu-hyperparameter-search
+# gpu-hparam-search-scheduler (or GHSS for short I guess)
 
 This wrapper allows you to train different models on multiple GPUs in parallel. You don't have to add anything to code that already works. If you can specify hyperparameters for your `train.py` file by setting different flags, then you can use this. 
 
@@ -48,7 +48,7 @@ Models are pre-assigned to GPUs and models on each GPU are run sequentially. If 
 Download the package.
 
 ```
-pip install git+https://github.com/taivanbat/gpu-hyperparameter-search.git
+pip install git+https://github.com/taivanbat/gpu-hparam-search-scheduler.git
 ```
 
 Install a virtual environment and activate it 
