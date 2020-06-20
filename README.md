@@ -49,7 +49,7 @@ Models are pre-assigned to GPUs and models on each GPU are run sequentially. If 
 Download the package.
 
 ```
-pip install git+https://github.com/taivanbat/gpu-hparam-search-scheduler.git
+git clone https://github.com/taivanbat/gpu-hparam-search-scheduler.git 
 ```
 
 Install a virtual environment and activate it 
