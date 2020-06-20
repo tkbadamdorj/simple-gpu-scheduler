@@ -3,6 +3,19 @@
 
 This wrapper allows you to train different models on multiple GPUs in parallel. You don't have to add anything to code that already works. If you can specify hyperparameters for your `train.py` file by setting different flags, then you can use this. 
 
+## Advantages
+
+- Compatible with all machine learning libraries. 
+- No need to add anything to your code
+- Automates hyperparameter search
+- Automatically picks free GPUs with option to leave some free 
+- Works for any train.py file that allows hyperparameter specification using command line arguments (see demo)
+- Both grid search and random search available
+
+## Disadvantages
+
+- If model training times are very different simple scheduling is not efficient e.g. if GPU 0 is assigned three models that take a long time to train, while GPU 1 is assigned three models that are smaller, GPU 1 may finish very quickly, while GPU 0 marches on.
+
 ## How it works 
 
 You just need to specify the hyperparameters and flags that you would like to search over in two dictionaries, `all_params` and `all_flags` like in `demo.py`. If you want to fix a flag, write `fixed` as the value, and if you want to test a model with and without that flag, write `param` as the value. 
@@ -30,19 +43,6 @@ hp_search.search()
 ## Scheduling
 
 Models are pre-assigned to GPUs and models on each GPU are run sequentially. If there are 9 models to try out, and we have three GPUs, each GPU is assigned three models. All three GPUs will start training the first models they were assigned. Once a GPU finishes training a model, it will start training the next model it was assigned.
-
-## Advantages
-
-- Compatible with all machine learning libraries. 
-- No need to add anything to your code
-- Automates hyperparameter search
-- Automatically picks free GPUs with option to leave some free 
-- Works for any train.py file that allows hyperparameter specification using command line arguments (see demo)
-- Both grid search and random search available
-
-## Disadvantages
-
-- If model training times are very different simple scheduling is not efficient e.g. if GPU 0 is assigned three models that take a long time to train, while GPU 1 is assigned three models that are smaller, GPU 1 may finish very quickly, while GPU 0 marches on.
 
 ## Requirements
 
