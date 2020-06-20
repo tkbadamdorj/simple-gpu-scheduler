@@ -4,10 +4,36 @@ This wrapper allows you to train different models on multiple GPUs in parallel. 
 
 ## How it works 
 
+You just need to specify the hyperparameters and flags that you would like to search over in two dictionaries, `all_params` and `all_flags` like in `demo.py`. If you want to fix a flag, write `fixed` as the value, and if you want to test a model with and without that flag, write `param` as the value. 
+
+```
+all_hparams = {
+    'learning_rate': [0.1, 0.01, 0.001],
+    'momentum': [0.9, 0.99]
+}
+
+all_flags = {
+    'normalize': 'fixed',
+    'dropout': 'param'
+}
+```
+
+Then initialize an HPSearch object, and run the search method. The `args` that you need are also defined in `demo.py`
+
+```
+hp_search = HPSearch(all_hparams, all_flags, args)
+
+hp_search.search()
+```
+
+## Scheduling
+
 Models are pre-assigned to GPUs and models on each GPU are run sequentially. If there are 9 models to try out, and we have three GPUs, each GPU is assigned three models. All three GPUs will start training the first models they were assigned. Once a GPU finishes training a model, it will start training the next model it was assigned.
 
 ## Advantages
 
+- Compatible with all machine learning libraries. 
+- No need to add anything to your code
 - Automates hyperparameter search
 - Automatically picks free GPUs with option to leave some free 
 - Works for any train.py file that allows hyperparameter specification using command line arguments (see demo)
