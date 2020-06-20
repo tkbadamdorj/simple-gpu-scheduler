@@ -18,7 +18,7 @@ This wrapper allows you to train different models on multiple GPUs in parallel. 
 
 ## How it works 
 
-You just need to specify the hyperparameters and flags that you would like to search over in two dictionaries, `all_params` and `all_flags` like in `demo.py`. If you want to fix a flag, write `fixed` as the value, and if you want to test a model with and without that flag, write `param` as the value. 
+You just need to specify the hyperparameters and flags that you would like to search over in two dictionaries, `all_params` and `all_flags` like in `demo.py`. If you want to fix a flag, write `"fixed"` as the value, and if you want to test a model with and without that flag, write `"param"` as the value. 
 
 ```
 all_hparams = {
@@ -83,15 +83,31 @@ python demo.py
 ```
 
 ### Usage:
+
 ```
---grid_search: set this flag to do grid search
---num_random: number of random sets of hyperparameters to pick if not doing grid search
---train_file_path: path to main training file 
---virtual_env_dir: can set directory of a virtual environment that will activate before the train.py is called 
---leave_num_gpus: number of GPUs to leave free. Useful if workstation is shared 
---memory_threshold: GPU that uses less than memory_threshold in MB is considered `not in use`
---pick_last_free_gpu: if flag is set, uses last free GPU if there is only one GPU free
---log_dir: where to store model logs 
+--grid_search
+    set this flag to do grid search
+    
+--num_random
+    number of random sets of hyperparameters to pick if not doing grid search
+    
+--train_file_path
+    path to main training file 
+
+--virtual_env_dir
+    can set directory of a virtual environment that will activate before the train.py is called 
+
+--leave_num_gpus
+    number of GPUs to leave free. Useful if workstation is shared 
+    
+--memory_threshold
+    GPU that uses less than memory_threshold in MB is considered not in use
+    
+--pick_last_free_gpu
+    if flag is set, uses last free GPU if there is only one GPU free
+    
+--log_dir
+    where to store model logs 
 ```
 
 You can also look at the training file in `demo_train.py`
