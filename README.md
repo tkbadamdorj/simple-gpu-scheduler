@@ -95,7 +95,7 @@ python demo.py
     path to main training file 
 
 --virtual_env_dir
-    can set directory of a virtual environment that will activate before the train.py is called 
+    directory of a virtual environment that will activate before the train.py is called. Default is None
 
 --leave_num_gpus
     number of GPUs to leave free. Useful if workstation is shared 
