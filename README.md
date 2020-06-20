@@ -1,4 +1,4 @@
-# gpu-hparam-search-scheduler
+
 (or GHSS for short I guess)
 
 This wrapper allows you to train different models on multiple GPUs in parallel. You don't have to add anything to code that already works. If you can specify hyperparameters for your `train.py` file by setting different flags, then you can use this. 
