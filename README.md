@@ -44,6 +44,14 @@ Models are pre-assigned to GPUs and models on each GPU are run sequentially. If 
 
 - If model training times are very different simple scheduling is not efficient e.g. if GPU 0 is assigned three models that take a long time to train, while GPU 1 is assigned three models that are smaller, GPU 1 may finish very quickly, while GPU 0 marches on.
 
+## Requirements
+
+```
+Python >= 3.7
+```
+
+All other requirements listed in `requirements.txt`
+
 ## Install
 
 Download the package.
