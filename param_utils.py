@@ -28,7 +28,7 @@ class Hparams:
         self.values = [Hparam(hparam_name, value) for value in values]
 
     def __repr__(self):
-        return f'{self.hparam_name}: {[value for value in self.raw_values]}\n'
+        return f'{self.hparam_name}: {[value for value in self.raw_values]}'
 
 
 class Hparam:
@@ -54,7 +54,7 @@ class Flags:
             self.values = [Flag(flag_name, True), Flag(flag_name, False)]
 
     def __repr__(self):
-        return f'{self.flag_name}: {"fixed" if self.fixed else "param"}\n'
+        return f'{self.flag_name}: {"fixed" if self.fixed else "param"}'
 
 
 class Flag:

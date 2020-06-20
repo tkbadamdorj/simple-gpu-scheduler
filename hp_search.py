@@ -29,17 +29,16 @@ Example:
 Useful when models are of similar size and run for the same number of epochs.
 """
 
-import argparse
 import itertools
+import subprocess
 from multiprocessing import Process
 from pprint import pprint
 from random import choice
-import subprocess
 from subprocess import DEVNULL
+import os
 
 from gpu_utils import GPUMemoryUtils
 from param_utils import *
-from vis_utils import visualize_results
 
 
 class HPSearch:
@@ -127,6 +126,7 @@ class HPSearch:
         # train on GPUs
         self._train_on_gpus(gpus, params_gpu)
 
+
     """PROCESS HYPERPARAMETERS"""
     def _get_params(self):
         """
@@ -165,7 +165,6 @@ class HPSearch:
         """
         Find all combinations of hyperparameters for grid search
 
-        # TODO: change documentation
         Argument:
             all_params: dict
                 keys are hyperparameter names
@@ -233,12 +232,14 @@ class HPSearch:
             return None
         # if only one GPU left, use that
         elif num_free_gpus == 1 and self.pick_last_free_gpu:
-            gpus = self.gpu_memory.get_free_gpus(self.memory_threshold)
+            chosen_gpus = self.gpu_memory.get_free_gpus(self.memory_threshold)
         # pick GPUs but leave leave_num_gpus free
         else:
-            gpus = self.gpu_memory.get_free_gpus()[:-leave_num_gpus]
+            free_gpus = self.gpu_memory.get_free_gpus(self.memory_threshold)
+            max_idx = len(free_gpus) - leave_num_gpus
+            chosen_gpus = free_gpus[:max_idx]
 
-        return gpus
+        return chosen_gpus
 
 
     def _models_to_gpus(self, params, num_use_gpus):
@@ -306,8 +307,10 @@ class HPSearch:
                 id of GPU to use
         """
         for i, param in enumerate(params):
+            print('----------------------------------')
             print(f'Running process {i} on gpu {gpu}')
             pprint(param)
+            print('----------------------------------\n')
             p = self._run_trainer(param, gpu)
             p.wait()
             print(f'process {i} finished on gpu {gpu}')
@@ -332,9 +335,14 @@ class HPSearch:
         activate_venv = f'. {self.virtual_env_dir}/bin/activate &&' \
             if self.virtual_env_dir is not None else ''
 
+        gpu_cmd = f'export CUDA_VISIBLE_DEVICES={gpu_num} &&'
+
+        if not os.path.exists(self.train_file_path):
+            print(f'{self.train_file_path} does not exist.')
+            return None
+
         # build up final command
-        cmd = f"{activate_venv} python {self.train_file_path} " \
-              f"--gpu_num {gpu_num} {param_cmd}"
+        cmd = f'{activate_venv} {gpu_cmd} python {self.train_file_path} {param_cmd}'
 
         # remove unnecessary whitespace
         cmd = ' '.join(cmd.split())
@@ -343,43 +351,3 @@ class HPSearch:
         p = subprocess.Popen(cmd, shell=True, stdout=DEVNULL, stderr=DEVNULL)
 
         return p
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--grid_search', action='store_true',
-                        help='set this flag to do grid search')
-    parser.add_argument('--num_random', type=int, default=10,
-                        help='number of random hyperparameters to pick if not doing grid search')
-    parser.add_argument('--train_file_path', type=str, default='trainer.py',
-                        help='main training file that will be run using command like python train.py')
-    parser.add_argument('--virtual_env_dir', type=str, default='.env',
-                        help='directory containing virtual environment e.g. if .env is directory, environment'
-                             'will be activated using . .env/bin/activate')
-    parser.add_argument('--leave_num_gpus', type=int, default=1,
-                        help='number of GPUs to keep free. useful for shared workstations')
-    parser.add_argument('--memory_threshold', type=int, default=150,
-                        help='GPU that uses less than memory_threshold in MB is considered `not in use`')
-    parser.add_argument('--pick_last_free_gpu', action='store_true',
-                        help='pick the last free gpu if there is only one gpu remaining')
-    parser.add_argument('--log_dir', type=str, default='logs')
-    args = parser.parse_args()
-
-
-    all_hparams = {
-        'learning_rate': [0.1, 0.01, 0.001],
-        'momentum': [0.9, 0.99]
-    }
-
-    all_flags = {
-
-    }
-
-    hp_search = HPSearch(all_hparams, all_flags, args)
-
-    hp_search.search()
-
-    # try to tabulate results if hparams.json and metrics.json files exist in each log directory
-    visualize_results(args.log_dir)
-
-    print('hyperparameter search finished.')

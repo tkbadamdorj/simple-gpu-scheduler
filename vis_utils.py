@@ -19,7 +19,6 @@ def visualize_results(log_dir):
 
         if not os.path.exists(hparam_path) or not os.path.exists(metric_path):
             print('hparams.json or metrics.json does not exist')
-            return None
 
         with open(hparam_path, 'r') as f:
             hparam = json.load(f)
@@ -33,7 +32,7 @@ def visualize_results(log_dir):
 
 
     hparam_names = [name for name in hparams[0]]
-    metric_names =  [name for name in metrics[0]]
+    metric_names = [name for name in metrics[0]]
 
     headers = hparam_names + metric_names
 

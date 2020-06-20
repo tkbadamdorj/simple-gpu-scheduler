@@ -1,166 +1,44 @@
-"""
-Author: Taivanbat "TK" Badamdorj
-github.com/taivanbat
-
-Adapted from: https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
-"""
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-import torchvision
-import torchvision.transforms as transforms
-
-import torch.optim as optim
-
 import argparse
-import os
-import json
-from glob import glob
 
-from tqdm import tqdm
-
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16 * 5 * 5, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 10)
-
-    def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 16 * 5 * 5)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+from vis_utils import visualize_results
+from hp_search import HPSearch
 
 
-if __name__=='__main__':
-    # parse hyperparameters
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--learning_rate', type=float, default=0.001)
-    parser.add_argument('--momentum', type=float, default=0.9)
-
-    ###############################################
-    # the following line must be in your train.py file
-    parser.add_argument('--gpu_num', default="0")
-    ###############################################
-
-    parser.add_argument('--log_dir', default="logs")
+    parser.add_argument('--grid_search', action='store_true',
+                        help='set this flag to do grid search')
+    parser.add_argument('--num_random', type=int, default=3,
+                        help='number of random hyperparameters to pick if not doing grid search')
+    parser.add_argument('--train_file_path', type=str, default='demo_train.py',
+                        help='main training file that will be run using command like python train.py')
+    parser.add_argument('--virtual_env_dir', type=str, default='.env',
+                        help='directory containing virtual environment e.g. if .env is directory, environment'
+                             'will be activated using . .env/bin/activate')
+    parser.add_argument('--leave_num_gpus', type=int, default=0,
+                        help='number of GPUs to keep free. useful for shared workstations')
+    parser.add_argument('--memory_threshold', type=int, default=150,
+                        help='GPU that uses less than memory_threshold in MB is considered `not in use`')
+    parser.add_argument('--pick_last_free_gpu', action='store_true',
+                        help='pick the last free gpu if there is only one gpu remaining')
+    parser.add_argument('--log_dir', type=str, default='logs')
     args = parser.parse_args()
 
-    ###############################################
-    # the following line must be in your train.py file
-    # make only one GPU available to the script
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_num
-    ###############################################
 
+    all_hparams = {
+        'learning_rate': [0.1, 0.01, 0.001],
+        'momentum': [0.9, 0.99]
+    }
 
-    os.environ["OMP_NUM_THREADS"] = "1"
-    torch.set_num_threads(1)
-    args.cuda = torch.cuda.is_available()
+    all_flags = {
 
-    num_models = len(glob(f'{args.log_dir}/*'))
+    }
 
-    # create log directory
-    model_log_dir = f'{args.log_dir}/{num_models + 1}'
-    if not os.path.exists(model_log_dir):
-        os.makedirs(model_log_dir)
+    hp_search = HPSearch(all_hparams, all_flags, args)
 
-    # write hyperparameters to log file
-    with open(f'{model_log_dir}/log.txt', 'w') as f:
-        f.write(json.dumps(args.__dict__))
+    hp_search.search()
 
-    # write hyperparameters to separate file
-    with open(f'{model_log_dir}/hparams.json', 'w') as f:
-        json.dump(args.__dict__, f)
+    # try to tabulate results if hparams.json and metrics.json files exist in each log directory
+    visualize_results(args.log_dir)
 
-    # define transforms and dataset
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
-    trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                            download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
-                                              shuffle=True, num_workers=2)
-
-    testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                           download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                             shuffle=False, num_workers=2)
-
-    classes = ('plane', 'car', 'bird', 'cat',
-               'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
-    # define model
-    net = Net()
-
-    if args.cuda:
-        net = net.cuda()
-
-
-    # define loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=args.momentum)
-
-    # train the model
-    for epoch in range(2):  # loop over the dataset multiple times
-
-        running_loss = 0.0
-        for i, data in enumerate(tqdm(trainloader), 0):
-            # get the inputs; data is a list of [inputs, labels]
-            inputs, labels = data
-
-            if args.cuda:
-                inputs, labels = inputs.cuda(), labels.cuda()
-
-            # zero the parameter gradients
-            optimizer.zero_grad()
-
-            # forward + backward + optimize
-            outputs = net(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-
-            # print statistics
-            running_loss += loss.item()
-            if i % 2000 == 1999:  # print every 2000 mini-batches
-                print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 2000))
-                running_loss = 0.0
-
-
-    # test the accuracy on test images
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for data in testloader:
-            images, labels = data
-
-            if args.cuda:
-                images, labels = images.cuda(), labels.cuda()
-
-            outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-    accuracy = correct/total
-
-    # save accuracy to log file
-    with open(f'{model_log_dir}/log.txt', 'a') as f:
-        f.write(f'\nfinal accuracy: {accuracy}')
-
-    # write metric to separate file
-    with open(f'{model_log_dir}/metrics.json', 'w') as f:
-        json.dump({'accuracy': accuracy}, f)
-
-    print('Finished Training')
+    print('hyperparameter search finished.')
