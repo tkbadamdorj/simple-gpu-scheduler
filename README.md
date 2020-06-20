@@ -39,9 +39,11 @@ hp_search = HPSearch(all_hparams, all_flags, args)
 hp_search.search()
 ```
 
+This takes care of the hyperparameter selection (random or grid search) and assigns models to unused GPUs. It sets which GPU to use for each model by setting the appropriate `CUDA_VISIBLE_DEVICES`.
+
 ## Scheduling
 
-Models are pre-assigned to GPUs and models on each GPU are run sequentially. If there are 9 models to try out, and we have three GPUs, each GPU is assigned three models. All three GPUs will start training the first models they were assigned. Once a GPU finishes training a model, it will start training the next model it was assigned.
+Models are pre-assigned to GPUs and models on each GPU are run sequentially. For example, if there are 9 models to try out, and we have three GPUs, each GPU is assigned three models. All three GPUs will start training the first models they were assigned. Once a GPU finishes training a model, it will start training the next model it was assigned.
 
 ## Requirements
 
@@ -79,6 +81,7 @@ Run the demo
 python demo.py
 ```
 
+### Usage:
 ```
 --grid_search: set this flag to do grid search
 --num_random: number of random sets of hyperparameters to pick if not doing grid search
@@ -89,6 +92,8 @@ python demo.py
 --pick_last_free_gpu: if flag is set, uses last free GPU if there is only one GPU free
 --log_dir: where to store model logs 
 ```
+
+You can also look at the training file in `demo_train.py`
 
 ### The output will look something like this: 
 
