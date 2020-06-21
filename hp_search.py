@@ -159,12 +159,9 @@ class HPSearch:
         Picks GPUs and schedules models to train on each GPU
 
         Argument:
-            hparams: list
+            params: list
                 contains hyperparameters for each model as
                 dictionary
-            leave_num_gpus: int
-                number of GPUs to leave free (useful in case
-                workstation is shared)
         """
         print(f'Running {len(params)} processes. Leaving {self.leave_num_gpus} GPU(s) free.')
 
@@ -222,18 +219,18 @@ class HPSearch:
 
         Example:
             If we use 3 GPUs for 9 different models,
-            GPU 0 gets: hparams[0], hparams[3], hparams[6]
-            GPU 1 gets: hparams[1], hparams[4], hparams[7]
-            GPU 2 gets: hparams[2], hparams[5], hparams[8]
+            GPU 0 gets: params[0], params[3], params[6]
+            GPU 1 gets: params[1], params[4], params[7]
+            GPU 2 gets: params[2], params[5], params[8]
 
         Argument:
-            hparams: list
+            params: list
                 contains hyperparameters of each model as dictionary
             num_use_gpus: int
                 number of GPUs we use
 
         Return:
-            hparams_gpu: list of lists
+            params_gpu: list of lists
                 each list item inside hparams_gpu contains
                 all hyperparameters to try for a single GPU
         """
@@ -251,13 +248,13 @@ class HPSearch:
 
         Example:
             gpus[0] runs all models defined by hyperparameters in
-            hparams_gpu[0]
+            params_gpu[0]
 
         Argument:
             gpus: list
                 GPU indices to use
-            hparams_gpu: list of lists
-                each list item inside hparams_gpu contains
+            params_gpu: list of lists
+                each list item inside params_gpu contains
                 all hyperparameters to try for a single GPU
         """
         proc = []
